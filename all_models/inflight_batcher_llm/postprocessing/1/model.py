@@ -61,16 +61,24 @@ class TritonPythonModel:
         if tokenizer_type == 't5':
             self.tokenizer = T5Tokenizer(vocab_file=tokenizer_dir,
                                          padding_side='left')
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         elif tokenizer_type == 'auto':
             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir,
                                                            padding_side='left')
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        elif tokenizer_type == 'baichuan':
+            self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir,
+                                                           padding_side='left',
+                                                           use_fast=False,
+                                                           trust_remote_code=True)
         elif tokenizer_type == 'llama':
             self.tokenizer = LlamaTokenizer.from_pretrained(
                 tokenizer_dir, legacy=False, padding_side='left')
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         else:
             raise AttributeError(
                 f'Unexpected tokenizer type: {tokenizer_type}')
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        
 
         # Parse model output configs
         output_config = pb_utils.get_output_config_by_name(
